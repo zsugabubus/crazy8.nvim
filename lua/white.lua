@@ -175,14 +175,17 @@ function detect()
 			::skip::
 		end
 
-		local maxts, max = 0, 0
+		-- Prefer current value.
+		local maxts = vim.api.nvim_get_option('tabstop')
+		local max = tsstat[maxts] or 0
+
 		for ts=2,textwidth - 1 do
 			if tsstat[ts] > max then
 				maxts, max = ts, tsstat[ts]
 			end
 		end
 
-		if maxts ~= 0 then
+		if max ~= 0 then
 			vim.api.nvim_command(
 				('setlocal tabstop=%d shiftwidth=%d softtabstop=%d noexpandtab'):format(maxts, maxts, maxts)
 			)
