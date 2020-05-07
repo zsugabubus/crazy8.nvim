@@ -1,11 +1,11 @@
-# vim-white
+# crazy8.nvim
 
-(Neo)Vim plugin that automatically configures `'tabstop'`, `'shiftwidth'`,
+NeoVim plugin that automatically configures `'tabstop'`, `'shiftwidth'`,
 `'softtabstop'` and `'expandtab'`. Forget about modelines now and forever.
 
 ---
 
-- Uses **AI**, written in pure Vim script. NeoVim users can enjoy the benefits of Lua.
+- Uses **AI**, written in pure Lua for maximum performance.
 - Requires **no configuration**, since everything that the plugin should know
   is inside the buffers.
 - Set defaults as easy as `au FileType c setlocal ts=8`.
