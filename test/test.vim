@@ -30,7 +30,7 @@ function! g:Test(lines, expected)
 			else
 				execute 'normal!' a:lines
 			endif
-			set ft=text
+			silent! set ft=text
 
 			call Expect(expected)
 		endfor
@@ -55,8 +55,8 @@ call Test([
 
 call Test([
 \"\tI",
-\" I",
-\], {'et': 0})
+\"  I",
+\], {'ts': 2, 'sw': 2, 'sts': 2, 'et': 0})
 
 call Test([
 \"\tI",
@@ -89,12 +89,6 @@ call Test([
 
 call Test([
 \"\tI",
-\" I",
-\"\tI",
-\], {'et': 0})
-
-call Test([
-\"\tI",
 \"",
 \"\tI",
 \"      I",
@@ -103,7 +97,7 @@ call Test([
 \"      I",
 \"",
 \"\tI",
-\], {'et': 0})
+\], {'ts': 6, 'sw': 6, 'sts': 6, 'et': 0})
 
 call Test([
 \"I",
@@ -151,7 +145,12 @@ call Test([
 \], {'ts': 6, 'sw': 6, 'sts': 6, 'et': 0})
 
 call Test([
-\"XXXXXXXXXXX	XXX,",
+\"XXXXXXXXXXX\tXXX,",
+\"Y\tYYY,\tY,\tY,",
+\], {'ts': 2, 'sw': 2, 'sts': 2, 'et': 0})
+
+call Test([
+\"XXXXXXXXXX\tXX,",
 \"Y\tYYY,\tY,\tY,",
 \], {'ts': 2, 'sw': 2, 'sts': 2, 'et': 0})
 
@@ -161,6 +160,27 @@ set ts=7 sw=9 sts=11
 call setline(1, ["L\tI", "LL\tI"])
 set ft=text
 call Expect({'ts': 7, 'sw': 7, 'sts': 7, 'et': 0})
+
+" Zsh is full of such shit. But hey... no problem. :)
+call Test([
+\'if [[ -z "$_comp_no_ignore" ]]; then',
+\'  zstyle -a ":completion:${curcontext}:$1" ignored-patterns _comp_ignore ||',
+\'    _comp_ignore=()',
+\'',
+\'  if zstyle -s ":completion:${curcontext}:$1" ignore-line hidden; then',
+\'    local -a qwords',
+\'    current-shown)',
+\"\t    [[ '$compstate[old_list]' = *shown* ]] &&",
+\'            _comp_ignore+=( $qwords[CURRENT] );;',
+\'    other)         _comp_ignore+=( $qwords[1,CURRENT-1]',
+\"\t\t\t\t   $qwords[CURRENT+1,-1] );;",
+\'',
+\], {'ts': 8, 'sw': 2, 'sts': 2, 'et': 0})
+
+call Test([
+\'void****malloc(size_t size',
+\"\t\t void*** something);"
+\], {'ts': 7, 'sw': 7, 'sts': 7, 'et': 0})
 
 if empty(v:errmsg)
 	0cquit
