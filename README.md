@@ -1,19 +1,14 @@
-# vim-detectindent
+# vim-white
 
-Zero-config (Neo)Vim plugin to automatically detect and set `'tabstop'`,
-`'shiftwidth'`, `'softtabstop'` and `'expandtab'`.
+(Neo)Vim plugin that automatically configures `'tabstop'`, `'shiftwidth'`,
+`'softtabstop'` and `'expandtab'`. Forget about modelines now and forever.
 
-## Features
+---
 
-- Uses AI, written in pure Vim script.
-- Allows setting defaults using the plain old method (below). However note that as human beings
-  getting more and more superseded by computers, this feature will be eventually
-  dropped. You have been warned.
-
-```vim
-autocmd FileType c,cpp,xyz
-	\ setlocal ts=6 sw=7 sts=8 noet yesai
-```
+- Uses **AI**, written in pure Vim script. NeoVim users can enjoy the benefits of Lua.
+- Requires **no configuration**, since everything that the plugin should know
+  is inside the buffers.
+- Set defaults as easy as `au FileType c setlocal ts=8`.
 
 ## Why?
 
