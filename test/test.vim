@@ -1,5 +1,4 @@
 set list listchars=eol:$,tab:>>,trail:+,space:+,nbsp:+
-
 function! g:Expect(expected)
 	let got = {'ts': &ts, 'sw': &sw, 'sts': &sts, 'et': &et}
 	if a:expected !=# got
@@ -56,7 +55,7 @@ call Test([
 call Test([
 \"\tI",
 \"  I",
-\], {'ts': 2, 'sw': 2, 'sts': 2, 'et': 0})
+\], {'et': 0})
 
 call Test([
 \"\tI",
@@ -97,7 +96,7 @@ call Test([
 \"      I",
 \"",
 \"\tI",
-\], {'ts': 6, 'sw': 6, 'sts': 6, 'et': 0})
+\], {'et': 0})
 
 call Test([
 \"I",
@@ -181,6 +180,13 @@ call Test([
 \'void****malloc(size_t size',
 \"\t\t void*** something);"
 \], {'ts': 7, 'sw': 7, 'sts': 7, 'et': 0})
+
+" Tabs align well to each other. Prefer current. Expect if it’s zero.
+call Test([
+\'int __get_compat_msghdr(struct msghdr *kmsg,',
+\"\t\t\tstruct compat_msghdr __user *umsg,",
+\"\t\t\tstruct sockaddr __user **save_addr,",
+\], {'ts': 2, 'sw': 2, 'sts': 2, 'et': 0})
 
 if empty(v:errmsg)
 	0cquit

@@ -33,6 +33,10 @@ function Crazy8()
 			prev_num_tabs, prev_num_spaces = 0, 0
 		end
 
+		if num_tabs == 0 then
+			-- vim.api.nvim_call_function('synIDattr', synIDtrans(synID(lnum, 1, 1)), "name") =~? 'comment|string'
+		end
+
 		local diff_tabs = math.abs(num_tabs - prev_num_tabs)
 		local any_tabs = num_tabs > 0 or prev_num_tabs > 0
 		local diff_spaces = math.abs(num_spaces - prev_num_spaces)
@@ -111,7 +115,11 @@ function Crazy8()
 
 		-- Fill 'tabstop' entries with zeros that we are interested in.
 		local ts_stat = {}
-		if sw == -1 then
+		-- Width of tab could not be determined and shift width is junk.
+		if ts == 0 then
+			sw = -1
+		end
+		if sw <= 1 then
 			for ts=2,textwidth - 1 do
 				ts_stat[ts] = 0
 			end
@@ -158,9 +166,14 @@ function Crazy8()
 
 				while true do
 					local cmp = currw - prevw
-					if cmp == 0 then
-						-- Only count splits that contained tabs.
-						if (splits[curr] or {0, 0})[2] > 0 or (prev_splits[prev] or {0, 0})[2] > 0 then
+					if cmp == 0 and curr > 0 and prev > 0  then
+						-- tab+space|
+						-- tab+space|
+						--    OR
+						-- tab|
+						-- tab|
+						--    OR something like this...
+						if splits[curr][2] + prev_splits[prev][2] > 0 and ((splits[curr][3] > 0) == (0 < prev_splits[prev][3])) then
 							weight = weight + 1
 							ts_stat[ts] = ts_stat[ts] + weight
 						end
@@ -224,7 +237,7 @@ function Crazy8()
 		end
 
 		if verbose > 0 then
-			print('ts2 '..dump(ts_stat) .. ' => '..ts)
+			print('ts2 '..vim.inspect(ts_stat) .. ' => '..ts)
 		end
 		if max ~= 0 then
 			-- There were no space indentation.
@@ -237,7 +250,7 @@ function Crazy8()
 			-- However, if we have shift width, use it as 'tabstop'. We maybe did not
 			-- found any tabulators because 'expandtab' should be set and a shift
 			-- width equals to 'tabsize'.
-			ts = sw > 0 and sw or -1
+			ts = sw >= 1 and sw or -1
 		end
 	elseif sw >= 0 then
 		use_tabs = true
