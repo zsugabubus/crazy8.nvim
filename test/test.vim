@@ -1,8 +1,8 @@
 set list listchars=eol:$,tab:>>,trail:+,space:+,nbsp:+
-function! g:Expect(expected)
+function! g:Expect(expected) abort
 	let got = {'ts': &ts, 'sw': &sw, 'sts': &sts, 'et': &et}
 	if a:expected !=# got
-		call append(0, ['Expected: '.string(a:expected).';', '     got: '.string(got).'.'])
+		call append(0, ['Wanted: '.string(a:expected).';', 'Actual: '.string(got).'.'])
 		redraw
 		messages
 		call getchar()
@@ -10,7 +10,7 @@ function! g:Expect(expected)
 	endif
 endfunction
 
-function! g:Test(lines, expected)
+function! g:Test(lines, expected) abort
 	" Test two different values for each options since we also want to test it
 	" if plugin touched them or not.
 	for et in [0, 1]
@@ -29,7 +29,7 @@ function! g:Test(lines, expected)
 			else
 				execute 'normal!' a:lines
 			endif
-			silent! set ft=text
+			lua Crazy8()
 
 			call Expect(expected)
 		endfor
@@ -41,8 +41,13 @@ call Test([], {})
 
 call Test(['I'], {})
 
-call Test(["\tI"], {'et': 0})
-call Test(["  I"], {'ts': 2, 'sw': 2, 'sts': 2, 'et': 1})
+call Test([
+\"\tI"
+\], {'et': 0})
+
+call Test([
+\'  I'
+\], {'ts': 2, 'sw': 2, 'sts': 2, 'et': 1})
 
 call Test([
 \" \t \tA",
@@ -54,6 +59,9 @@ call Test([
 
 call Test([
 \"\tI",
+\"  I",
+\"  I",
+\"  I",
 \"  I",
 \], {'et': 0})
 
@@ -85,6 +93,27 @@ call Test([
 \"",
 \"   I\t",
 \], {'ts': 3, 'sw': 3, 'sts': 3, 'et': 1})
+
+call Test([
+\"  I",
+\"\tI",
+\"\t  I",
+\"\t    I",
+\], {'ts': 4, 'sw': 2, 'sts': 2, 'et': 0})
+
+call Test([
+\"I",
+\"\tI",
+\"\t  I",
+\"\t    I",
+\], {'et': 0})
+
+call Test([
+\"\tI",
+\"\t  I",
+\"\t    I",
+\"\t      I",
+\], {'et': 0})
 
 call Test([
 \"\tI",
@@ -157,8 +186,54 @@ call Test([
 %delete
 set ts=7 sw=9 sts=11
 call setline(1, ["L\tI", "LL\tI"])
-set ft=text
+lua Crazy8()
 call Expect({'ts': 7, 'sw': 7, 'sts': 7, 'et': 0})
+
+" Inconsistent spaces and tabs size drops sw.
+call Test([
+\'/*',
+\' *',
+\' *',
+\' *',
+\' *',
+\' *',
+\' */',
+\'',
+\"A234 <space",
+\"\tB",
+\"\t\tC",
+\"\tB",
+\"\t\tC",
+\"\tB",
+\"\t\tC",
+\"A",
+\], {'et': 0})
+
+call Test([
+\'P',
+\'  Y',
+\'    R',
+\'      A',
+\'    M',
+\'  I',
+\'D',
+\'  Z4567( <--space we dont care about',
+\"\tS",
+\"\tS",
+\"\tS",
+\"\tS",
+\"\tS",
+\"\tS",
+\"\tS",
+\"\tS",
+\"\tS",
+\"\tS",
+\"\tS",
+\"\tS",
+\"\tS",
+\"\tS",
+\'H',
+\], {'ts': 4, 'sw': 2, 'sts': 2, 'et': 0})
 
 " Zsh is full of such shit. But hey... no problem. :)
 call Test([

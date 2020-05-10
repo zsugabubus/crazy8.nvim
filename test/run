@@ -1,2 +1,2 @@
-nvim -u NONE --cmd 'set rtp=.' +'source plugin/crazy8.vim' +'source test/test.vim' && echo 'All tests passed.'
+nvim -u NONE --cmd 'set rtp+=.' +'source plugin/crazy8.vim' +'source test/test.vim' && echo 'All tests passed.'
 # vim:ft=sh

@@ -33,8 +33,12 @@ function Crazy8()
 			prev_num_tabs, prev_num_spaces = 0, 0
 		end
 
-		if num_tabs == 0 then
-			-- vim.api.nvim_call_function('synIDattr', synIDtrans(synID(lnum, 1, 1)), "name") =~? 'comment|string'
+		local syntax = vim.api.nvim_call_function('synIDattr',
+			{vim.api.nvim_call_function('synIDtrans',
+				{vim.api.nvim_call_function('synID', {lnum, 1, 1})}),
+			"name"})
+		if syntax:match('String$') or syntax:match('Comment$') or syntax:match('Doc$') then
+			goto skip
 		end
 
 		local diff_tabs = math.abs(num_tabs - prev_num_tabs)
@@ -115,7 +119,8 @@ function Crazy8()
 
 		-- Fill 'tabstop' entries with zeros that we are interested in.
 		local ts_stat = {}
-		-- Width of tab could not be determined and shift width is junk.
+		-- Spaces detected but could not determine tab size. Impossible. Shift
+		-- width must be junk.
 		if ts == 0 then
 			sw = -1
 		end
@@ -237,7 +242,7 @@ function Crazy8()
 		end
 
 		if verbose > 0 then
-			print('ts2 '..vim.inspect(ts_stat) .. ' => '..ts)
+			print('ts2 '..vim.inspect(ts_stat) .. ' => ['..ts..'] = '..max)
 		end
 		if max ~= 0 then
 			-- There were no space indentation.
