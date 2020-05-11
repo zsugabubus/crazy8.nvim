@@ -77,15 +77,33 @@ function Crazy8()
 	local sw, ts = -1, -1
 
 	-- Find best shift width and tabstop.
-	--
-	-- However, we need be more sophisticated about shift width because a
-	-- deindetation could skip more indentation levels so we cannot be sure what
-	-- shift width are they really belonging to.
-	-- For example if desw_stat = {6: 2} means that there were two lines where
-	-- indentation jumped back six spaces. However searched shift width maybe 3
-	-- and then it means that two levels were skipped back at once in these
-	-- cases. For this reason, when considering shift width x, be also add to
-	-- this number the count of deintetation shift widts of x,2*x,3*x...
+
+	ts_stat[1] = nil -- Nobody wants one-sized tabs. Here.
+	for value, count in pairs(ts_stat) do
+		if ts_samples < count * 2 then
+			ts = value
+			break
+		end
+	end
+	if ts == 0 then
+		-- Tab size could not be determined because there were no spaces that we
+		-- could correlate to. Contents of `sw_stat` may or may not junk, let the
+		-- statistics decide regarding this. We are add a new ‘sw is junk group’
+		-- with `ts_samples` possibility.
+		--
+		-- Because -1 is the default, adding `sw_stat[-1] = ts_samples` is
+		-- superfluous. Enough to increment the number of all samples.
+		sw_samples = sw_samples + ts_samples
+	end
+
+	-- We need be more sophisticated about shift width because a deindetation
+	-- could skip more indentation levels so we cannot be sure what shift width
+	-- are they really belonging to. For example if desw_stat = {6: 2} means that
+	-- there were two lines where indentation jumped back six spaces. However
+	-- searched shift width maybe 3 and then it means that two levels were
+	-- skipped back at once in these cases. For this reason, when considering
+	-- shift width x, be also add to this number the count of deintetation shift
+	-- widts of x,2*x,3*x...
 	for value, count in pairs(sw_stat) do
 		if value ~= 1 then
 			for mul=value,textwidth - 1,value do
@@ -94,13 +112,6 @@ function Crazy8()
 		end
 		if sw_samples < count * 2 then
 			sw = value
-			break
-		end
-	end
-	ts_stat[1] = nil -- Nobody wants one-sized tabs. Here.
-	for value, count in pairs(ts_stat) do
-		if ts_samples < count * 2 then
-			ts = value
 			break
 		end
 	end

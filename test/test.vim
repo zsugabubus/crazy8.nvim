@@ -210,6 +210,13 @@ call Test([
 \], {'et': 0})
 
 call Test([
+\"\t I",
+\"\t   I",
+\"\t      I",
+\"\t          I",
+\], {'et': 0})
+
+call Test([
 \'P',
 \'  Y',
 \'    R',
