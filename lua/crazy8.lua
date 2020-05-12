@@ -13,7 +13,6 @@ function Crazy8()
 
 	-- We make our decision on scientific, statistical bases.
 	local prev_lnum, prev_num_tabs, prev_num_spaces = -2, 0, 0
-	local samples = 0
 	local ts_samples, ts_stat = 0, {} -- Where tabs stop?
 	local sw_samples, sw_stat, desw_stat = 0, {}, {} -- How big is an indentation?
 	local use_tabs = false -- Do we really use tabs for 'tabstop's?
@@ -28,7 +27,6 @@ function Crazy8()
 
 		local num_tabs, num_spaces = #tabs, #spaces
 
-		samples = samples + 1
 		if prev_lnum + 1 ~= lnum then
 			prev_num_tabs, prev_num_spaces = 0, 0
 		end
@@ -65,8 +63,14 @@ function Crazy8()
 			use_tabs = true
 		end
 
-		-- We must have collected enough samples to decide.
-		if samples > 100 then
+		-- Finish if we have enough samples.
+		--
+		-- - If we detected enough tabs but (almost) no spaces, we can assume that
+		--   there are no space indentations at all further down in the file.
+		-- - But if we have seen any spaces, expect more.
+		-- - If we have seen only spaces so far, that does not mean anything. A tab
+		--   may come later.
+		if ts_samples >= 100 and (sw_samples < 5 or sw_samples > 100) then
 			break
 		end
 
@@ -117,6 +121,7 @@ function Crazy8()
 	end
 
 	if verbose > 0 then
+		print('sw_samples='..sw_samples..' ts_samples='..ts_samples)
 		print('sw '..vim.inspect(sw_stat)..' => '..sw)
 		print('desw '..vim.inspect(desw_stat))
 		print('ts '..vim.inspect(ts_stat)..' => '..ts)
