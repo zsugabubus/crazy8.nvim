@@ -154,7 +154,7 @@ function Crazy8()
 			line = line:sub(0, textwidth)
 
 			local splits, has_tabs = {}, false
-			for text, tabs, spaces in line:gfind('([^\t (]*)(\t*)([ (]*)') do
+			for text, tabs, spaces in line:gmatch('([^\t (]*)(\t*)([ (]*)') do
 				if #tabs == 0 and #spaces == 0 then
 					if #text == 0 then
 						break
