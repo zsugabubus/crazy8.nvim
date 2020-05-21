@@ -1,11 +1,13 @@
 # crazy8.nvim
 
-NeoVim plugin that automatically configures `'tabstop'`, `'shiftwidth'`,
-`'softtabstop'` and `'expandtab'`. Forget about modelines now and forever.
+NeoVim plugin that automagically configures `'tabstop'`, `'shiftwidth'`,
+`'softtabstop'` and `'expandtab'`.
 
----
+Currently comes with no configuration options. It silently sits in the
+background and does its job when needed.
 
-- Uses **AI**, written in pure Lua for maximum performance.
-- Requires **no configuration**, since everything that the plugin should know
-  is inside the buffers.
-- Set defaults as easy as `au FileType c setlocal ts=8`.
+## Bugs
+
+If you experience any misdetections, do not hesitate to file an issue.
+
+###### Oh, do not get scared. It potentially occurs only with purely tab-aligned “specially crafted” files… if occurs.
