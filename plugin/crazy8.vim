@@ -1,11 +1,9 @@
 " LICENSE: GPLv3 or later
 " AUTHOR: zsugabubus
-if exists('g:loaded_crazy8')
+if exists('#crazy8')
 	finish
 endif
-let g:loaded_crazy8 = 1
-
-augroup vim_crazy8
+augroup crazy8
 	autocmd!
 	autocmd BufNewFile,BufReadPost * ++once lua require'crazy8'
 	" Needs to be run after syntax is fully loaded.
