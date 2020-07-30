@@ -17,7 +17,10 @@ function Crazy8()
 	local sw_samples, sw_stat, desw_stat = 0, {}, {} -- How big is an indentation?
 	local use_tabs = false -- Do we really use tabs for 'tabstop's?
 
-	for lnum, line in ipairs(vim.api.nvim_buf_get_lines(0, 0, 1000, false)) do
+	local lines = vim.api.nvim_buf_get_lines(0, 0, 1000, false) -- Examined lines.
+	local lnums = {} -- Line numbers we interested in.
+
+	for lnum, line in ipairs(lines) do
 		line = line:sub(0, textwidth)
 		local tabs, spaces = line:match('^(\t*)( *)[^\t ]')
 		-- Line is not indented.
@@ -31,19 +34,21 @@ function Crazy8()
 			prev_num_tabs, prev_num_spaces = 0, 0
 		end
 
+		local _, leading_white = line:find("^[\t ]*")
 		local syntax = vim.api.nvim_call_function('synIDattr',
 			{vim.api.nvim_call_function('synIDtrans',
-				{vim.api.nvim_call_function('synID', {lnum, 1, 1})}),
+				{vim.api.nvim_call_function('synID', {lnum, leading_white + 1, 1})}),
 			"name"})
 		if syntax:match('String$') or syntax:match('Comment$') or syntax:match('Doc$') then
 			goto skip
 		end
 
+		lnums[#lnums + 1] = lnum
+
 		local diff_tabs = math.abs(num_tabs - prev_num_tabs)
-		local any_tabs = num_tabs > 0 or prev_num_tabs > 0
 		local diff_spaces = math.abs(num_spaces - prev_num_spaces)
 
-		if diff_tabs == 0 and diff_spaces ~= 0 then
+		if diff_tabs == 0 and diff_spaces > 1 then
 			if num_spaces > prev_num_spaces then
 				-- Number of tabs remained, but spaces changed. => Ident used spaces.
 				sw_stat[diff_spaces] = (sw_stat[diff_spaces] or 0) + 1
@@ -52,14 +57,18 @@ function Crazy8()
 				desw_stat[diff_spaces] = (desw_stat[diff_spaces] or 0) + 1
 			end
 			sw_samples = sw_samples + 1
-			if any_tabs then
-				use_tabs = true
-			end
-		elseif diff_tabs ~= 0 and diff_spaces % diff_tabs == 0 then
+		elseif diff_tabs ~= 0 and (num_spaces == 0 or prev_num_spaces == 0) and diff_spaces % diff_tabs == 0 and diff_spaces / diff_tabs ~= 1 then
+			-- __if (
+			-- >---xyz
+
 			-- Tabs -> Spaces. => sw ~= ts
 			-- Final value is best 'tabstop' + sw
+
 			ts_stat[diff_spaces / diff_tabs] = (ts_stat[diff_spaces / diff_tabs] or 0) + 1
 			ts_samples = ts_samples + 1
+		end
+
+		if num_tabs > 0 then
 			use_tabs = true
 		end
 
@@ -81,8 +90,6 @@ function Crazy8()
 	local sw, ts = -1, -1
 
 	-- Find best shift width and tabstop.
-
-	ts_stat[1] = nil -- Nobody wants one-sized tabs. Here.
 	for value, count in pairs(ts_stat) do
 		if ts_samples < count * 2 then
 			ts = value
@@ -137,6 +144,8 @@ function Crazy8()
 		local ts_stat = {}
 		-- Spaces detected but could not determine tab size. Impossible. Shift
 		-- width must be junk.
+		-- __something
+		-- >------ how much is a tab?
 		if ts == 0 then
 			sw = -1
 		end
@@ -150,7 +159,8 @@ function Crazy8()
 			end
 		end
 
-		for lnum, line in ipairs(vim.api.nvim_buf_get_lines(0, 0, 1000, false)) do
+		for _, lnum in ipairs(lnums) do
+			line = lines[lnum]
 			line = line:sub(0, textwidth)
 
 			local splits, has_tabs = {}, false
@@ -261,10 +271,11 @@ function Crazy8()
 			print('ts2 '..vim.inspect(ts_stat) .. ' => ['..ts..'] = '..max)
 		end
 		if max ~= 0 then
-			-- There were no space indentation.
+			-- There were no space indentation, so expand tabs anyway.
 			if sw == -1 then
-				use_tabs = true
 				sw = ts
+				-- Needed if we do not have any leading tabs.
+				use_tabs = true
 			end
 		else
 			-- No luck. Probably there were no tabs at all in the whole text.
@@ -274,7 +285,6 @@ function Crazy8()
 			ts = sw >= 1 and sw or -1
 		end
 	elseif sw >= 0 then
-		use_tabs = true
 		ts = ts + sw
 	end
 
@@ -287,6 +297,7 @@ function Crazy8()
 		vim.api.nvim_command(
 			('setlocal shiftwidth=%d softtabstop=%d'):format(sw, sw)
 		)
+		-- Expand tabs, only if we have a valid 'shiftwidth'.
 		if not use_tabs then
 			vim.api.nvim_command('setlocal expandtab')
 		end

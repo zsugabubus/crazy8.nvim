@@ -1,4 +1,6 @@
 set list listchars=eol:$,tab:>>,trail:+,space:+,nbsp:+
+syntax enable
+
 function! g:Expect(expected) abort
 	let got = {'ts': &ts, 'sw': &sw, 'sts': &sts, 'et': &et}
 	if a:expected !=# got
@@ -16,6 +18,8 @@ function! g:Test(lines, expected) abort
 	for et in [0, 1]
 		for n in [1, 2]
 			%delete
+			call setline(1, a:lines)
+			filetype detect
 
 			setlocal tw=80
 			let &l:ts = n
@@ -24,19 +28,14 @@ function! g:Test(lines, expected) abort
 			let &l:et = et
 			let expected = extend(deepcopy(a:expected), {'ts': &ts, 'sw': &sw, 'sts': &sts, 'et': &et}, 'keep')
 
-			if type(a:lines) ==# v:t_list
-				call setline(1, a:lines)
-			else
-				execute 'normal!' a:lines
-			endif
 			lua Crazy8()
 
+			echom &ft
 			call Expect(expected)
 		endfor
 	endfor
 endfunction
 
-call Test(":setlocal ts=2 sw=3 sts=4\<CR>", {'ts': 2, 'sw': 3, 'sts': 4})
 call Test([], {})
 
 call Test(['I'], {})
@@ -269,6 +268,22 @@ call Test([
 \"\t\t\tstruct compat_msghdr __user *umsg,",
 \"\t\t\tstruct sockaddr __user **save_addr,",
 \], {'ts': 2, 'sw': 2, 'sts': 2, 'et': 0})
+
+call Test([
+\'if (',
+\'    ()) {',
+\"\t/* ... */",
+\'}'
+\], {'ts': 4, 'sw': 4, 'sts': 4, 'et': 0})
+
+call Test([
+\'vim:ft=c:',
+\'if (',
+\'    ()) {',
+\"\t/* ... */",
+\"\tbreak;",
+\'}',
+\], {'et': 0})
 
 if empty(v:errmsg)
 	0cquit
