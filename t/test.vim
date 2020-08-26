@@ -42,7 +42,7 @@ call Test(['I'], {})
 
 call Test([
 \"\tI"
-\], {'et': 0})
+\], {'sw': 0, 'sts': -1, 'et': 0})
 
 call Test([
 \'  I'
@@ -62,7 +62,7 @@ call Test([
 \"  I",
 \"  I",
 \"  I",
-\], {'et': 0})
+\], {'sw': 0, 'sts': -1, 'et': 0})
 
 call Test([
 \"\tI",
@@ -70,13 +70,13 @@ call Test([
 \"\tI",
 \"",
 \"\tI",
-\], {'et': 0})
+\], {'sw': 0, 'sts': -1, 'et': 0})
 
 call Test([
 \"\tA",
 \"\t\tB",
 \"\t\t\tC",
-\], {'et': 0})
+\], {'sw': 0, 'sts': -1, 'et': 0})
 
 call Test([
 \"   I",
@@ -105,14 +105,14 @@ call Test([
 \"\tI",
 \"\t  I",
 \"\t    I",
-\], {'et': 0})
+\], {'sw': 0, 'sts': -1, 'et': 0})
 
 call Test([
 \"\tI",
 \"\t  I",
 \"\t    I",
 \"\t      I",
-\], {'et': 0})
+\], {'sw': 0, 'sts': -1, 'et': 0})
 
 call Test([
 \"\tI",
@@ -124,7 +124,7 @@ call Test([
 \"      I",
 \"",
 \"\tI",
-\], {'et': 0})
+\], {'sw': 0, 'sts': -1, 'et': 0})
 
 call Test([
 \"I",
@@ -206,14 +206,14 @@ call Test([
 \"\tB",
 \"\t\tC",
 \"A",
-\], {'et': 0})
+\], {'sw': 0, 'sts': -1, 'et': 0})
 
 call Test([
 \"\t I",
 \"\t   I",
 \"\t      I",
 \"\t          I",
-\], {'et': 0})
+\], {'sw': 0, 'sts': -1, 'et': 0})
 
 call Test([
 \'P',
@@ -270,20 +270,13 @@ call Test([
 \], {'ts': 2, 'sw': 2, 'sts': 2, 'et': 0})
 
 call Test([
-\'if (',
-\'    ()) {',
-\"\t/* ... */",
-\'}'
-\], {'ts': 4, 'sw': 4, 'sts': 4, 'et': 0})
-
-call Test([
 \'vim:ft=c:',
 \'if (',
 \'    ()) {',
 \"\t/* ... */",
 \"\tbreak;",
 \'}',
-\], {'et': 0})
+\], {'sw': 0, 'sts': -1, 'et': 0})
 
 if empty(v:errmsg)
 	0cquit

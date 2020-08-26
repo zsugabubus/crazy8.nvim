@@ -277,6 +277,13 @@ function Crazy8()
 				-- Needed if we do not have any leading tabs.
 				use_tabs = true
 			end
+		elseif use_tabs then
+			-- Previously, we found leading tabs, but could not determine its size.
+			-- We set sw to the special 0 value that means (user configured)
+			-- 'tabstop' will be used.
+			if sw == -1 then
+				sw = 0
+			end
 		else
 			-- No luck. Probably there were no tabs at all in the whole text.
 			-- However, if we have shift width, use it as 'tabstop'. We maybe did not
@@ -293,9 +300,9 @@ function Crazy8()
 			('setlocal tabstop=%d'):format(ts)
 		)
 	end
-	if sw > 0 then
+	if sw >= 0 then
 		vim.api.nvim_command(
-			('setlocal shiftwidth=%d softtabstop=%d'):format(sw, sw)
+			('setlocal shiftwidth=%d softtabstop=%d'):format(sw, sw == 0 and -1 or sw)
 		)
 		-- Expand tabs, only if we have a valid 'shiftwidth'.
 		if not use_tabs then
