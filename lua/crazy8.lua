@@ -17,7 +17,7 @@ function Crazy8()
 	local sw_samples, sw_stat, desw_stat = 0, {}, {} -- How big is an indentation?
 	local use_tabs = false -- Do we really use tabs for 'tabstop's?
 
-	local lines = vim.api.nvim_buf_get_lines(0, 0, 1000, false) -- Examined lines.
+	local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false) -- Examined lines.
 	local lnums = {} -- Line numbers we interested in.
 
 	for lnum, line in ipairs(lines) do
