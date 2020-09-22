@@ -149,14 +149,8 @@ function Crazy8()
 		if ts == 0 then
 			sw = -1
 		end
-		if sw <= 1 then
-			for ts=2,textwidth - 1 do
-				ts_stat[ts] = 0
-			end
-		else
-			for ts=2*sw,textwidth - 1,sw do
-				ts_stat[ts] = 0
-			end
+		for ts=2,textwidth - 1 do
+			ts_stat[ts] = 0
 		end
 
 		for _, lnum in ipairs(lnums) do
@@ -191,6 +185,9 @@ function Crazy8()
 
 			-- Go for each tab size.
 			for ts, _ in pairs(ts_stat) do
+				if sw >= 2 and (ts <= sw or (ts % sw) ~= 0) then
+					goto next_ts
+				end
 				local weight = 0
 				local curr, prev = 0, 0
 				local currw, prevw = 0, 0
@@ -250,6 +247,7 @@ function Crazy8()
 					end
 
 				end
+				::next_ts::
 			end
 
 			::next::
