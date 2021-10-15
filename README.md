@@ -6,8 +6,10 @@ NeoVim plugin that automagically configures `'tabstop'`, `'shiftwidth'`,
 Currently comes with no configuration options. It silently sits in the
 background and does its job when needed.
 
-## Bugs
+## Final words
 
-If you experience any misdetections, do not hesitate to file an issue.
+Plugin works but it may be too smart about `'tabstop'`. Personally, I started
+using
+[vim-dent](https://github.com/zsugabubus/dotfiles/tree/master/.config/nvim/pack/plugins/opt/vim-dent)
+that I'm quite happy with: fast and perfect (for me so far).
 
-###### Oh, do not get scared. It potentially occurs only with purely tab-aligned “specially crafted” files… if occurs.
